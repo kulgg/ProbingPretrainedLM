@@ -6,7 +6,11 @@ import wandb
 from src.globals import debug_print, ner_label_length
 
 def perf(model, loader, epoch = 1, dataset="eval"):
-  # we calculate the F1 score to evaluate performance
+  """
+  Returns the average loss, precision and recall. 
+  First the ner_spans method is utilized to transform a list of tensor tags into entity spans.
+  Subsequently, the entity span sets of the true labels and predictions are used to determine precision and recall scores.
+  """
   criterion = nn.CrossEntropyLoss()
   # sets the model to evaluation mode
   model.eval()
@@ -62,6 +66,11 @@ def is_entity(y):
   return not is_padding(y) and not is_zero(y)
 
 def ner_spans(tensors : List[torch.tensor]) -> Set[Tuple[int, int, int]]:
+  """
+  Returns the set of entity spans that are contained within the tensor
+  An entity span is characterized by (start_index, end_index, enitity_type)
+  An entity span starts at the first padding tag (9), if one exists, and ends at the last contiuation tag for that entity.
+  """
   res = set()
   start = -1
   paddingstart = -1
@@ -91,17 +100,17 @@ def ner_spans(tensors : List[torch.tensor]) -> Set[Tuple[int, int, int]]:
 
   return res
 
-# def recall(y_pred, y):
-#   y_pred = set(map(lambda x: (x[0], x[1]), y_pred))
-#   y = set(map(lambda x: (x[0], x[1]), y))
-#   recalled = len(y.intersection(y_pred))
-#   return recalled / len(y)
-
 def recall(s_pred, s):
+  """
+  How many of the true entity spans were predicted
+  """
   tp = len(s.intersection(s_pred))
   return _division(tp, len(s))
 
 def precision(s_pred, s):
+  """
+  How many of all the entity span predictions are correct
+  """
   tp = len(s.intersection(s_pred))
   return _division(tp, len(s_pred))
 

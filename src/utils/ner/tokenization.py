@@ -4,6 +4,12 @@ from transformers import AutoTokenizer
 from src.globals import tokenizer, debug_print, device
 
 def align_to_bert_tokenization(sentences, labels):
+    """
+    Tokenizes words using the BERT auto tokenizer.
+    Then realigns labels to the last token of each word.
+    Not-last tokens are labelled with a <pad> tag.
+    Returns the resulting tuple of the two dimensional lists (sentences, labels)
+    """
     tokenized_sentences = []
     aligned_labels = []
 
@@ -34,15 +40,19 @@ def align_to_bert_tokenization(sentences, labels):
 
 
 def convert_to_ids(sentences, taggings):
-  sentences_ids = []
-  taggings_ids = []
-  for sentence, tagging in zip(sentences, taggings):
-    sentence_tensor = torch.tensor(tokenizer.convert_tokens_to_ids(['[CLS]'] + sentence + ['SEP'])).long()
-    tagging_tensor = torch.tensor([9] + [int(tag) if tag != '<pad>' else 9 for tag in tagging] + [9]).long()
+    """
+    Transform tokens and string labels into tensors and int labels.
+    Because non-entity words reserve the 0 int label, <pad> tags are mapped to 9.
+    """
+    sentences_ids = []
+    taggings_ids = []
+    for sentence, tagging in zip(sentences, taggings):
+        sentence_tensor = torch.tensor(tokenizer.convert_tokens_to_ids(['[CLS]'] + sentence + ['SEP'])).long()
+        tagging_tensor = torch.tensor([9] + [int(tag) if tag != '<pad>' else 9 for tag in tagging] + [9]).long()
 
-    sentences_ids.append(sentence_tensor.to(device))
-    taggings_ids.append(tagging_tensor.to(device))
-  return sentences_ids, taggings_ids
+        sentences_ids.append(sentence_tensor.to(device))
+        taggings_ids.append(tagging_tensor.to(device))
+    return sentences_ids, taggings_ids
 
 def tokenize(sentences, labels):
     bert_tokenized_sentences, aligned_taggings = align_to_bert_tokenization(sentences, labels)

@@ -7,6 +7,11 @@ from src.globals import ner_label_length
 from src.utils.ner.accuracy import perf
 
 def fit(model, train_loader, eval_loader, params):
+  """
+  Main training loop.
+  Uses CrossEntropyLoss and Adam optimizer.
+  After each epoch the accuracy over the eval dataset is calculated. 
+  """
   criterion = nn.CrossEntropyLoss()
   optimizer = optim.Adam(model.parameters(), lr=params.lr)
   for epoch in range(params.epochs):
