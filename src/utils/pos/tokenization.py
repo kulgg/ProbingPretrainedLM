@@ -4,6 +4,12 @@ from transformers import AutoTokenizer
 from src.globals import tokenizer, debug_print, label_vocab, device
 
 def align_to_bert_tokenization(sentences, labels):
+    """
+    Tokenizes words using the BERT auto tokenizer.
+    Then realigns labels to the last token of each word.
+    Not-last tokens are labelled with a <pad> tag.
+    Returns the resulting tuple of the two dimensional lists (sentences, labels)
+    """
     tokenized_sentences = []
     aligned_labels = []
 
@@ -41,20 +47,23 @@ def align_to_bert_tokenization(sentences, labels):
 
 
 def convert_to_ids(sentences, taggings):
-  sentences_ids = []
-  taggings_ids = []
-  for sentence, tagging in zip(sentences, taggings):
-    # sentence = ['Al', '-', 'Z', '##aman', ':', 'American', 'forces', 'killed', ...]
-    # tagging = ['NNP', 'HYPH', '<pad>', 'NNP', ':', 'JJ', 'NNS', 'VBD', '<pad>', ...]
+    """
+    Transform tokens and string labels into tensors and int labels.
+    """
+    sentences_ids = []
+    taggings_ids = []
+    for sentence, tagging in zip(sentences, taggings):
+        # sentence = ['Al', '-', 'Z', '##aman', ':', 'American', 'forces', 'killed', ...]
+        # tagging = ['NNP', 'HYPH', '<pad>', 'NNP', ':', 'JJ', 'NNS', 'VBD', '<pad>', ...]
 
-    # sentence_tensor = [  101,  2586,   118,   163, 19853,   131,  1237,  2088, ...]
-    sentence_tensor = torch.tensor(tokenizer.convert_tokens_to_ids(['[CLS]'] + sentence + ['SEP'])).long()
-    # tagging_tensor = [ 0,  1,  2,  0,  1,  3,  4,  5,  6,  0,  0,  1,  1,  1, ...]
-    tagging_tensor = torch.tensor([0] + [label_vocab[tag] for tag in tagging] + [0]).long()
+        # sentence_tensor = [  101,  2586,   118,   163, 19853,   131,  1237,  2088, ...]
+        sentence_tensor = torch.tensor(tokenizer.convert_tokens_to_ids(['[CLS]'] + sentence + ['SEP'])).long()
+        # tagging_tensor = [ 0,  1,  2,  0,  1,  3,  4,  5,  6,  0,  0,  1,  1,  1, ...]
+        tagging_tensor = torch.tensor([0] + [label_vocab[tag] for tag in tagging] + [0]).long()
 
-    sentences_ids.append(sentence_tensor.to(device))
-    taggings_ids.append(tagging_tensor.to(device))
-  return sentences_ids, taggings_ids
+        sentences_ids.append(sentence_tensor.to(device))
+        taggings_ids.append(tagging_tensor.to(device))
+    return sentences_ids, taggings_ids
 
 def tokenize(sentences, labels):
     index = 44

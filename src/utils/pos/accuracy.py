@@ -7,6 +7,15 @@ import wandb
 from src.globals import label_vocab, ner_label_length
 
 def perf(model, loader, epoch=1, dataset="eval"):
+  """
+  Calculates the accuracy as a percentage of correct predictions.
+  Padding tags are ignored.
+
+
+  Returns
+  -----------------------
+  average loss, accuracy 
+  """
   criterion = nn.CrossEntropyLoss()
   # sets the model to evaluation mode
   model.eval()

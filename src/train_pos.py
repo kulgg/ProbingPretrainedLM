@@ -14,6 +14,12 @@ from src.globals import *
 from src.models.models_enum import Models
 
 def go(params):
+    """
+    Main entry point for POS training.
+    First loads the datasets and runs tokenization.
+    Then executes training for the model specified in params.
+    Finally the model is evaluated using the test dataset.
+    """
     train_sentences, train_labels = load(TRAIN_FILE)
     eval_sentences, eval_labels = load(EVAL_FILE)
     test_sentences, test_labels = load(TEST_FILE)

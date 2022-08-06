@@ -13,6 +13,12 @@ from src.utils.ner.test import test
 from src.globals import debug_print, ner_label_length, device
 
 def go(params):
+    """
+    Main entry point for NER training.
+    First loads the datasets and runs tokenization.
+    Then executes training for the model specified in params.
+    Finally the model is evaluated using the test dataset.
+    """
     train_sentences, train_labels = load("train")
     eval_sentences, eval_labels = load("validation")
     test_sentences, test_labels = load("test")

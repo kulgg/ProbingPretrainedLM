@@ -5,6 +5,11 @@ from src.globals import label_vocab
 from src.utils.pos.accuracy import perf
 
 def fit(model, train_loader, eval_loader, params):
+  """
+  Main training loop.
+  Uses CrossEntropyLoss and Adam optimizer.
+  After each epoch the accuracy over the eval dataset is calculated. 
+  """
   criterion = nn.CrossEntropyLoss()
   optimizer = optim.Adam(model.parameters(), lr=params.lr)
   for epoch in range(params.epochs):
